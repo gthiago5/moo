@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escolha Sim ou Não</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f9f9f9;
+            padding: 20px;
+            margin: 0;
+        }
+        h1 {
+            color: #333;
+            font-size: 24px;
+        }
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+        }
+        button {
+            font-size: 18px;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+            width: 80%;
+            max-width: 300px;
+        }
+        .sim {
+            background-color: #28a745;
+            color: white;
+        }
+        .sim:hover {
+            background-color: #218838;
+        }
+        .nao {
+            background-color: #dc3545;
+            color: white;
+        }
+        .nao:hover {
+            background-color: #c82333;
+        }
+        #message {
+            font-size: 20px;
+            color: #555;
+            margin-top: 20px;
+        }
+        video {
+            display: none;
+            margin-top: 20px;
+            width: 90%;
+            max-width: 400px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Você concorda com isso?</h1>
+    <div class="button-container">
+        <button class="sim" onclick="escolha('sim')">Sim</button>
+        <button class="nao" onclick="escolha('não')">Não</button>
+    </div>
+    <p id="message"></p>
+    <video id="cameraFeed" autoplay></video>
+
+    <script>
+        async function escolha(resposta) {
+            const mensagem = document.getElementById('message');
+            const video = document.getElementById('cameraFeed');
+
+            if (resposta === 'sim') {
+                mensagem.textContent = "Que bom que você concorda!";
+                vibrar(100); // Vibra por 100ms
+                await abrirCamera(video); // Ativa a câmera
+            } else {
+                mensagem.textContent = "Tudo bem, respeitamos sua decisão.";
+                vibrar([200, 100, 200]); // Vibra com padrão
+                fecharCamera(video); // Fecha a câmera
+            }
+        }
+
+        function vibrar(padrao) {
+            if ("vibrate" in navigator) {
+                navigator.vibrate(padrao);
+            } else {
+                console.log("Vibração não suportada neste dispositivo.");
+            }
+        }
+
+        async function abrirCamera(video) {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    video.srcObject = stream;
+                    video.style.display = "block";
+                } catch (error) {
+                    alert("Não foi possível acessar a câmera: " + error.message);
+                }
+            } else {
+                alert("A câmera não é suportada neste navegador.");
+            }
+        }
+
+        function fecharCamera(video) {
+            const stream = video.srcObject;
+            if (stream) {
+                const tracks = stream.getTracks();
+                tracks.forEach(track => track.stop());
+                video.srcObject = null;
+            }
+            video.style.display = "none";
+        }
+    </script>
+</body>
+</html>
+
